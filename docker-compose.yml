@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db
+    environment:
+      MSSQL_SA_PASSWORD: "yourStrong(!)Password"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+
+  app:
+    build:
+      context: .
+    container_name: app
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://db:1433;encrypt=true;trustServerCertificate=true
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=yourStrong(!)Password
+    ports:
+      - "8080:8080"
+
+  web:
+    build:
+      context: ./web
+    container_name: web
+    depends_on:
+      - app
+    ports:
+      - "3000:3000"
